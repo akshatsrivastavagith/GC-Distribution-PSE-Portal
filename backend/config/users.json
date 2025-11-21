@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "email": "ks.chanchal@razorpay.com",
+      "role": "super_admin",
+      "permissions": [
+        "dashboard",
+        "stock_upload",
+        "data_change_operation",
+        "user_management"
+      ]
+    },
+    {
+      "email": "akshat.s@razorpay.com",
+      "role": "admin",
+      "permissions": [
+        "dashboard",
+        "stock_upload",
+        "data_change_operation"
+      ]
+    },
+    {
+      "email": "manoj.rt@razorpay.com",
+      "role": "user",
+      "permissions": [
+        "dashboard",
+        "stock_upload"
+      ]
+    }
+  ]
+}

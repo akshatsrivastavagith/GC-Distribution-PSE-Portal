@@ -1,0 +1,92 @@
+PSE_PORTAL/
+│
+├── 📄 README.md                          # Main project documentation
+├── 📄 QUICKSTART.md                      # Quick start guide
+├── 📄 PROJECT_INFO.md                    # Project information and workflow
+├── 📄 .gitignore                         # Git ignore rules
+├── 📄 sample_vouchers.csv                # Sample CSV for testing
+│
+├── 🚀 start-backend.sh                   # Backend startup script
+├── 🚀 start-frontend.sh                  # Frontend startup script
+│
+├── 📁 backend/                           # Node.js Backend
+│   ├── 📄 package.json                   # Backend dependencies
+│   ├── 📄 server.js                      # Main Express + Socket.io server
+│   │
+│   ├── 📁 routes/                        # API Routes
+│   │   ├── authRoutes.js                 # Authentication routes
+│   │   └── stockRoutes.js                # Stock upload routes
+│   │
+│   ├── 📁 controllers/                   # Business Logic
+│   │   ├── authController.js             # Login logic
+│   │   └── stockController.js            # Upload & control logic
+│   │
+│   ├── 📁 utils/                         # Helper Functions
+│   │   ├── runPython.js                  # Python script executor
+│   │   └── rzpid.js                      # Batch ID generator
+│   │
+│   ├── 📁 config/                        # Configuration Files
+│   │   ├── allowed-users.json            # Authorized emails
+│   │   ├── clients.json                  # Client list with offer IDs
+│   │   └── credentials.json              # API credentials (PROD/TEST)
+│   │
+│   ├── 📁 scripts/                       # Python Scripts
+│   │   └── voucher_upload_controlled.py  # ⚠️ Main upload script (run via portal only!)
+│   │
+│   └── 📁 storage/                       # File Storage
+│       ├── procurement_batch_id.txt      # Batch ID log
+│       ├── stock_uploads/                # Upload results (per-run folders)
+│       └── tmp/                          # Temporary upload files
+│
+├── 📁 frontend/                          # React Frontend
+│   ├── 📄 package.json                   # Frontend dependencies
+│   ├── 📄 index.html                     # HTML entry point
+│   ├── 📄 vite.config.js                 # Vite configuration
+│   ├── 📄 tailwind.config.js             # Tailwind CSS config
+│   ├── 📄 postcss.config.js              # PostCSS config
+│   │
+│   └── 📁 src/                           # Source Code
+│       ├── 📄 main.jsx                   # React entry point
+│       ├── 📄 App.jsx                    # Main app component
+│       ├── 📄 index.css                  # Global styles (Tailwind)
+│       │
+│       ├── 📁 pages/                     # Page Components
+│       │   ├── Login.jsx                 # Login page
+│       │   ├── Dashboard.jsx             # Dashboard page
+│       │   └── StockUpload.jsx           # Stock upload page (main feature)
+│       │
+│       ├── 📁 components/                # Reusable Components
+│       │   ├── Navbar.jsx                # Navigation bar with env selector
+│       │   ├── DragDropArea.jsx          # File upload component
+│       │   ├── PreRunModal.jsx           # Pre-upload confirmation modal
+│       │   └── Terminal.jsx              # Real-time log display
+│       │
+│       └── 📁 lib/                       # Utilities
+│           └── socket.js                 # Socket.io client setup
+│
+└── 📁 docs/                              # Documentation
+    └── setup_guide_mac.md                # Detailed setup guide
+
+═══════════════════════════════════════════════════════════════════
+
+KEY FILES:
+
+🔑 Backend Entry:     backend/server.js
+🔑 Frontend Entry:    frontend/src/main.jsx
+🔑 Main Feature:      frontend/src/pages/StockUpload.jsx
+🔑 Python Script:     backend/scripts/voucher_upload_controlled.py
+🔑 Configuration:     backend/config/*.json
+
+═══════════════════════════════════════════════════════════════════
+
+WORKFLOW:
+
+1. Start backend server (port 5000)
+2. Start frontend dev server (port 5173)
+3. Login via web interface
+4. Upload CSV via Stock Upload page
+5. Backend spawns Python script automatically
+6. Real-time logs stream to frontend
+7. Results saved in storage/stock_uploads/<run-id>/
+
+═══════════════════════════════════════════════════════════════════

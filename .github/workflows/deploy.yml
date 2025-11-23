@@ -1,0 +1,97 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    name: Build and Deploy to EC2
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          echo "VITE_API_BASE_URL=http://${{ secrets.EC2_PUBLIC_IP }}" > .env.production
+          echo "VITE_WS_URL=ws://${{ secrets.EC2_PUBLIC_IP }}/ws" >> .env.production
+          npm run build
+      
+      - name: Build Backend
+        run: |
+          cd go-backend
+          GOOS=linux GOARCH=amd64 go build -o gc-distribution-portal main.go
+          chmod +x gc-distribution-portal
+      
+      - name: Create SSH key file
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
+          chmod 400 ec2-key.pem
+      
+      - name: Deploy Backend to EC2
+        run: |
+          scp -i ec2-key.pem -o StrictHostKeyChecking=no \
+            go-backend/gc-distribution-portal ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/
+          
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'ENDSSH'
+            sudo systemctl stop gc-distribution.service || true
+            sudo mv /home/ubuntu/gc-distribution-portal /opt/gc-distribution-portal/
+            sudo chmod +x /opt/gc-distribution-portal/gc-distribution-portal
+            sudo systemctl start gc-distribution.service
+            sudo systemctl status gc-distribution.service
+          ENDSSH
+      
+      - name: Deploy Frontend to EC2
+        run: |
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'ENDSSH'
+            sudo rm -rf /opt/gc-distribution-portal/frontend/*
+          ENDSSH
+          
+          scp -i ec2-key.pem -o StrictHostKeyChecking=no -r \
+            frontend/dist/* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/tmp/frontend-new/
+          
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'ENDSSH'
+            sudo mv /tmp/frontend-new/* /opt/gc-distribution-portal/frontend/
+            sudo systemctl reload nginx
+          ENDSSH
+      
+      - name: Verify Deployment
+        run: |
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'ENDSSH'
+            echo "=== Backend Status ==="
+            sudo systemctl status gc-distribution.service --no-pager
+            echo ""
+            echo "=== Nginx Status ==="
+            sudo systemctl status nginx --no-pager
+            echo ""
+            echo "=== Deployment Time ==="
+            date
+          ENDSSH
+      
+      - name: Cleanup
+        if: always()
+        run: rm -f ec2-key.pem
+      
+      - name: Deployment Success
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Portal is live at: http://${{ secrets.EC2_PUBLIC_IP }}"
+

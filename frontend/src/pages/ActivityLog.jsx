@@ -1,3 +1,4 @@
+import { API_BASE_URL, WS_URL } from "../config/api"
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +30,7 @@ const ActivityLog = () => {
 
   useEffect(() => {
     // Check if user is Super Admin
-    if (user?.role !== 'Super Admin') {
+    if (user?.role !== 'super_admin') {
       navigate('/');
       return;
     }
@@ -53,7 +54,7 @@ const ActivityLog = () => {
       if (activityFilters.environment) params.append('environment', activityFilters.environment);
       
       const queryString = params.toString();
-      const url = `http://localhost:5001/activity-log${queryString ? '?' + queryString : ''}`;
+      const url = `${API_BASE_URL}/activity-log${queryString ? '?' + queryString : ''}`;
       
       const response = await fetch(url, {
         headers: {
@@ -88,7 +89,7 @@ const ActivityLog = () => {
       if (uploadFilters.status) params.append('status', uploadFilters.status);
       
       const queryString = params.toString();
-      const url = `http://localhost:5001/upload-history${queryString ? '?' + queryString : ''}`;
+      const url = `${API_BASE_URL}/upload-history${queryString ? '?' + queryString : ''}`;
       
       const response = await fetch(url, {
         headers: {

@@ -1,3 +1,4 @@
+import { API_BASE_URL, WS_URL } from "../config/api"
 import { useState, useEffect } from 'react'
 
 export default function ClientManagementModal({ isOpen, onClose, onSave }) {
@@ -15,7 +16,12 @@ export default function ClientManagementModal({ isOpen, onClose, onSave }) {
 
   const loadClients = async () => {
     try {
-      const res = await fetch('http://localhost:5001/config/clients.json')
+      const token = localStorage.getItem('authToken')
+      const res = await fetch(`${API_BASE_URL}/config/clients`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       setClients(data || [])
     } catch (error) {
@@ -68,7 +74,7 @@ export default function ClientManagementModal({ isOpen, onClose, onSave }) {
   const handleSaveAll = async () => {
     try {
       const token = localStorage.getItem('authToken')
-      const res = await fetch('http://localhost:5001/config/clients', {
+      const res = await fetch(`${API_BASE_URL}/config/clients`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

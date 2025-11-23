@@ -1,3 +1,4 @@
+import { API_BASE_URL, WS_URL } from "../config/api"
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import ClientManagementModal from '../components/ClientManagementModal'
@@ -52,7 +53,12 @@ export default function StockUpload() {
 
   const loadClients = async () => {
     try {
-      const res = await fetch('http://localhost:5001/config/clients.json')
+      const token = localStorage.getItem('authToken')
+      const res = await fetch(`${API_BASE_URL}/config/clients`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       setClientList(data || [])
     } catch (error) {
@@ -377,7 +383,7 @@ export default function StockUpload() {
       setExecutionLog([])
 
       const token = localStorage.getItem('authToken')
-      const response = await fetch('http://localhost:5001/stock/upload', {
+      const response = await fetch(`${API_BASE_URL}/stock/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -418,7 +424,7 @@ export default function StockUpload() {
   }
 
   const connectWebSocket = (uploadRunId) => {
-    const ws = new WebSocket(`ws://localhost:5001/ws`)
+    const ws = new WebSocket(`${WS_URL}`)
     
     ws.onopen = () => {
       console.log('WebSocket connected')

@@ -1,0 +1,38 @@
+============================================
+  GC DISTRIBUTION PORTAL - AWS DEPLOYMENT
+============================================
+
+Instance ID:      i-07a6c795dea900b39
+Public IP:        13.205.4.29
+Instance Type:    t3.micro (Free Tier)
+Region:           ap-south-1 (Mumbai)
+Security Group:   sg-0733cb84c03e1bc7a
+S3 Bucket:        gc-distribution-storage-1763898888
+
+SSH Access:
+-----------
+ssh -i gc-distribution-key.pem ubuntu@13.205.4.29
+
+Portal URL (after deployment):
+------------------------------
+http://13.205.4.29
+
+Credstash Secrets Stored:
+-------------------------
+✅ razorpay.test.username
+✅ razorpay.test.password
+✅ razorpay.test.url
+✅ razorpay.prod.username
+✅ razorpay.prod.password
+✅ razorpay.prod.url
+✅ jwt.secret
+
+Next Steps:
+-----------
+1. Build frontend & backend
+2. Deploy to EC2
+3. Install & configure Nginx
+4. Start services
+
+Status: READY FOR DEPLOYMENT
+

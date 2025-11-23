@@ -1,3 +1,4 @@
+import { API_BASE_URL, WS_URL } from "../config/api"
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './Profile.css';
@@ -60,7 +61,7 @@ const Profile = () => {
   const fetchMyRequests = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5001/password-request/my-requests', {
+      const response = await fetch(`${API_BASE_URL}/password-request/my-requests`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -78,7 +79,7 @@ const Profile = () => {
   const handleRequestPasswordChange = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5001/password-request', {
+      const response = await fetch(`${API_BASE_URL}/password-request`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

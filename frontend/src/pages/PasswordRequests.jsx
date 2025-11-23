@@ -1,3 +1,4 @@
+import { API_BASE_URL, WS_URL } from "../config/api"
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +16,7 @@ const PasswordRequests = () => {
 
   useEffect(() => {
     // Check if user is Super Admin
-    if (user?.role !== 'Super Admin') {
+    if (user?.role !== 'super_admin') {
       navigate('/');
       return;
     }
@@ -28,7 +29,7 @@ const PasswordRequests = () => {
       setLoading(true);
       const token = localStorage.getItem('authToken');
       
-      const response = await fetch('http://localhost:5001/password-request/all', {
+      const response = await fetch(`${API_BASE_URL}/password-request/all`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,7 +59,7 @@ const PasswordRequests = () => {
     try {
       const token = localStorage.getItem('authToken');
       
-      const response = await fetch('http://localhost:5001/password-request/review', {
+      const response = await fetch(`${API_BASE_URL}/password-request/review`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

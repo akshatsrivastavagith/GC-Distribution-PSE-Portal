@@ -9,6 +9,7 @@ import DataChangeOperation from './pages/DataChangeOperation'
 import UserManagement from './pages/UserManagement'
 import Profile from './pages/Profile'
 import ActivityLog from './pages/ActivityLog'
+import MyActivity from './pages/MyActivity'
 import PasswordRequests from './pages/PasswordRequests'
 
 export default function App() {
@@ -55,6 +56,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/my-activity' 
+              element={
+                <ProtectedRoute>
+                  <MyActivity />
                 </ProtectedRoute>
               } 
             />

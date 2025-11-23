@@ -1,0 +1,137 @@
+{
+    "ReservationId": "r-0d791ae330dea1d3e",
+    "OwnerId": "821340467186",
+    "Groups": [],
+    "Instances": [
+        {
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [],
+            "ClientToken": "bd8ae85e-68db-4e2a-adc3-e45acde8c044",
+            "EbsOptimized": false,
+            "EnaSupport": true,
+            "Hypervisor": "xen",
+            "IamInstanceProfile": {
+                "Arn": "arn:aws:iam::821340467186:instance-profile/GC-Distribution-EC2-Profile",
+                "Id": "AIPA36O5U57ZGW7OVDMPB"
+            },
+            "NetworkInterfaces": [
+                {
+                    "Attachment": {
+                        "AttachTime": "2025-11-23T12:38:50+00:00",
+                        "AttachmentId": "eni-attach-0f316dbc7c0607371",
+                        "DeleteOnTermination": true,
+                        "DeviceIndex": 0,
+                        "Status": "attaching",
+                        "NetworkCardIndex": 0
+                    },
+                    "Description": "",
+                    "Groups": [
+                        {
+                            "GroupId": "sg-0733cb84c03e1bc7a",
+                            "GroupName": "gc-distribution-sg"
+                        }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:74:2b:2f:19:3f",
+                    "NetworkInterfaceId": "eni-0a3ee85e76d865fa4",
+                    "OwnerId": "821340467186",
+                    "PrivateDnsName": "ip-172-31-36-139.ap-south-1.compute.internal",
+                    "PrivateIpAddress": "172.31.36.139",
+                    "PrivateIpAddresses": [
+                        {
+                            "Primary": true,
+                            "PrivateDnsName": "ip-172-31-36-139.ap-south-1.compute.internal",
+                            "PrivateIpAddress": "172.31.36.139"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-0c0e38ad5bf382e12",
+                    "VpcId": "vpc-01ce190de8cac221c",
+                    "InterfaceType": "interface",
+                    "Operator": {
+                        "Managed": false
+                    }
+                }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+                {
+                    "GroupId": "sg-0733cb84c03e1bc7a",
+                    "GroupName": "gc-distribution-sg"
+                }
+            ],
+            "SourceDestCheck": true,
+            "StateReason": {
+                "Code": "pending",
+                "Message": "pending"
+            },
+            "Tags": [
+                {
+                    "Key": "Name",
+                    "Value": "GC-Distribution-Portal"
+                }
+            ],
+            "VirtualizationType": "hvm",
+            "CpuOptions": {
+                "CoreCount": 1,
+                "ThreadsPerCore": 2
+            },
+            "CapacityReservationSpecification": {
+                "CapacityReservationPreference": "open"
+            },
+            "MetadataOptions": {
+                "State": "pending",
+                "HttpTokens": "optional",
+                "HttpPutResponseHopLimit": 1,
+                "HttpEndpoint": "enabled",
+                "HttpProtocolIpv6": "disabled",
+                "InstanceMetadataTags": "disabled"
+            },
+            "EnclaveOptions": {
+                "Enabled": false
+            },
+            "BootMode": "uefi-preferred",
+            "PrivateDnsNameOptions": {
+                "HostnameType": "ip-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": false
+            },
+            "MaintenanceOptions": {
+                "AutoRecovery": "default",
+                "RebootMigration": "default"
+            },
+            "CurrentInstanceBootMode": "uefi",
+            "Operator": {
+                "Managed": false
+            },
+            "InstanceId": "i-0d2affd6fd44bb722",
+            "ImageId": "ami-0ade68f094cc81635",
+            "State": {
+                "Code": 0,
+                "Name": "pending"
+            },
+            "PrivateDnsName": "ip-172-31-36-139.ap-south-1.compute.internal",
+            "PublicDnsName": "",
+            "StateTransitionReason": "",
+            "KeyName": "gc-distribution-key",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2025-11-23T12:38:50+00:00",
+            "Placement": {
+                "AvailabilityZoneId": "aps1-az1",
+                "GroupName": "",
+                "Tenancy": "default",
+                "AvailabilityZone": "ap-south-1a"
+            },
+            "Monitoring": {
+                "State": "disabled"
+            },
+            "SubnetId": "subnet-0c0e38ad5bf382e12",
+            "VpcId": "vpc-01ce190de8cac221c",
+            "PrivateIpAddress": "172.31.36.139"
+        }
+    ]
+}

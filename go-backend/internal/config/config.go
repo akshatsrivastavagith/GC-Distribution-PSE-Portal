@@ -22,6 +22,7 @@ type User struct {
 	Email       string   `json:"email"`
 	Role        string   `json:"role"`
 	Permissions []string `json:"permissions"`
+	Active      bool     `json:"active"` // true = active, false = deactivated
 }
 
 // UsersData holds the users list
@@ -127,5 +128,31 @@ func (c *Config) LoadEnvironments() (Environments, error) {
 	}
 
 	return envs, nil
+}
+
+// LoadAllowedUsers reads allowed users from config file
+func (c *Config) LoadAllowedUsers() ([]string, error) {
+	allowedUsersPath := filepath.Join(c.ConfigDir, "allowed-users.json")
+	data, err := os.ReadFile(allowedUsersPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var allowedUsers []string
+	if err := json.Unmarshal(data, &allowedUsers); err != nil {
+		return nil, err
+	}
+
+	return allowedUsers, nil
+}
+
+// SaveAllowedUsers writes allowed users to config file
+func (c *Config) SaveAllowedUsers(allowedUsers []string) error {
+	allowedUsersPath := filepath.Join(c.ConfigDir, "allowed-users.json")
+	data, err := json.MarshalIndent(allowedUsers, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(allowedUsersPath, data, 0644)
 }
 

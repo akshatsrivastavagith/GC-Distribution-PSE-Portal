@@ -887,6 +887,31 @@ func (h *StockHandler) SaveClients(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GetClients handles reading client configurations
+func (h *StockHandler) GetClients(w http.ResponseWriter, r *http.Request) {
+	clientsPath := filepath.Join(h.config.ConfigDir, "clients.json")
+	
+	// Read the file
+	data, err := os.ReadFile(clientsPath)
+	if err != nil {
+		// If file doesn't exist, return empty array
+		if os.IsNotExist(err) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte("[]"))
+			return
+		}
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Failed to read clients",
+		})
+		return
+	}
+
+	// Return the raw JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 // DownloadFile handles file downloads
 func (h *StockHandler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

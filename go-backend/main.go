@@ -45,7 +45,9 @@ func main() {
 
 	// User management routes (protected)
 	r.HandleFunc("/auth/users", middleware.AuthMiddleware(authHandler.GetAllUsers)).Methods("GET")
+	r.HandleFunc("/auth/users", middleware.AuthMiddleware(authHandler.CreateUser)).Methods("POST")
 	r.HandleFunc("/auth/users/permissions", middleware.AuthMiddleware(authHandler.UpdateUserPermissions)).Methods("PUT")
+	r.HandleFunc("/auth/users/status", middleware.AuthMiddleware(authHandler.UpdateUserStatus)).Methods("PUT")
 
 	// Stock routes (protected)
 	r.HandleFunc("/stock/upload", middleware.AuthMiddleware(stockHandler.StartUpload(wsHub))).Methods("POST")
@@ -53,10 +55,12 @@ func main() {
 	r.HandleFunc("/stock/download/{runId}/{filename}", middleware.AuthMiddleware(stockHandler.DownloadFile)).Methods("GET")
 
 	// Config routes (protected)
+	r.HandleFunc("/config/clients", middleware.AuthMiddleware(stockHandler.GetClients)).Methods("GET")
 	r.HandleFunc("/config/clients", middleware.AuthMiddleware(stockHandler.SaveClients)).Methods("POST")
 
 	// Profile routes (protected)
 	r.HandleFunc("/profile", middleware.AuthMiddleware(profileHandler.GetProfile)).Methods("GET")
+	r.HandleFunc("/my-activity-log", middleware.AuthMiddleware(profileHandler.GetMyActivityLog)).Methods("GET")
 	r.HandleFunc("/activity-log", middleware.AuthMiddleware(profileHandler.GetActivityLog)).Methods("GET")
 	r.HandleFunc("/upload-history", middleware.AuthMiddleware(profileHandler.GetAllUploadHistory)).Methods("GET")
 
@@ -66,6 +70,11 @@ func main() {
 	r.HandleFunc("/password-request/all", middleware.AuthMiddleware(passwordRequestHandler.GetAllRequests)).Methods("GET")
 	r.HandleFunc("/password-request/review", middleware.AuthMiddleware(passwordRequestHandler.ReviewRequest)).Methods("POST")
 	r.HandleFunc("/password-request/pending-count", middleware.AuthMiddleware(passwordRequestHandler.GetPendingCount)).Methods("GET")
+
+	// Password reset routes (public - no auth required)
+	r.HandleFunc("/password-request/forgot", passwordRequestHandler.ForgotPassword).Methods("POST")
+	r.HandleFunc("/password-request/check-reset-status", passwordRequestHandler.CheckResetStatus).Methods("GET")
+	r.HandleFunc("/password-request/reset-password", passwordRequestHandler.ResetPassword).Methods("POST")
 
 	// WebSocket endpoint
 	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {

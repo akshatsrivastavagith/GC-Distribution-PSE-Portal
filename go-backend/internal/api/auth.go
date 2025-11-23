@@ -10,6 +10,7 @@ import (
 	"gc-distribution-portal/internal/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthHandler handles authentication endpoints
@@ -82,10 +83,34 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify password (simple check for now - all users have same password)
-	// TODO: Use bcrypt for production
-	expectedPassword := "Greninja@#7860"
-	if req.Password != expectedPassword {
+	// Check if user is active
+	if !foundUser.Active {
+		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
+			"success": false,
+			"message": "Account is deactivated. Please contact administrator.",
+		})
+		return
+	}
+
+	// Verify password - check if it's hashed or plaintext
+	passwordValid := false
+	if foundUser.Password != "" {
+		// Check if password is bcrypt hashed (starts with $2a$ or $2b$)
+		if len(foundUser.Password) > 10 && foundUser.Password[0] == '$' {
+			// Use bcrypt verification
+			err := bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(req.Password))
+			passwordValid = (err == nil)
+		} else {
+			// Plaintext password (legacy support)
+			passwordValid = (req.Password == foundUser.Password)
+		}
+	} else {
+		// No password set, use default
+		expectedPassword := "Greninja@#7860"
+		passwordValid = (req.Password == expectedPassword)
+	}
+
+	if !passwordValid {
 		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
 			"message": "Invalid username or password",
@@ -183,6 +208,158 @@ func (h *AuthHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// CreateUserRequest represents create user request
+type CreateUserRequest struct {
+	Username    string   `json:"username"`
+	Email       string   `json:"email"`
+	Role        string   `json:"role"`
+	Permissions []string `json:"permissions"`
+}
+
+// CreateUser creates a new user (super admin only)
+func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.GetUserFromContext(r.Context())
+	if !ok || user.Role != "super_admin" {
+		respondJSON(w, http.StatusForbidden, map[string]interface{}{
+			"success": false,
+			"message": "Forbidden",
+		})
+		return
+	}
+
+	var req CreateUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate required fields
+	if req.Username == "" || req.Email == "" || req.Role == "" {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "Username, email, and role are required",
+		})
+		return
+	}
+
+	// Validate role
+	validRoles := []string{"super_admin", "admin", "user"}
+	roleValid := false
+	for _, validRole := range validRoles {
+		if req.Role == validRole {
+			roleValid = true
+			break
+		}
+	}
+	if !roleValid {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "Invalid role. Must be super_admin, admin, or user",
+		})
+		return
+	}
+
+	// Load current users
+	usersData, err := h.config.LoadUsers()
+	if err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Server error",
+		})
+		return
+	}
+
+	// Check if username or email already exists
+	for _, existingUser := range usersData.Users {
+		if existingUser.Username == req.Username {
+			respondJSON(w, http.StatusConflict, map[string]interface{}{
+				"success": false,
+				"message": "Username already exists",
+			})
+			return
+		}
+		if existingUser.Email == req.Email {
+			respondJSON(w, http.StatusConflict, map[string]interface{}{
+				"success": false,
+				"message": "Email already exists",
+			})
+			return
+		}
+	}
+
+	// Set default permissions if not provided
+	if req.Permissions == nil || len(req.Permissions) == 0 {
+		switch req.Role {
+		case "super_admin":
+			req.Permissions = []string{"dashboard", "stock_upload", "data_change_operation", "user_management"}
+		case "admin":
+			req.Permissions = []string{"dashboard", "stock_upload", "data_change_operation"}
+		case "user":
+			req.Permissions = []string{"dashboard", "stock_upload"}
+		}
+	}
+
+	// Create new user
+	newUser := config.User{
+		Username:    req.Username,
+		Password:    "$2a$10$YourHashedPasswordHere", // Same placeholder password
+		Email:       req.Email,
+		Role:        req.Role,
+		Permissions: req.Permissions,
+		Active:      true, // New users are active by default
+	}
+
+	// Add user to the list
+	usersData.Users = append(usersData.Users, newUser)
+
+	// Save updated users
+	if err := h.config.SaveUsers(usersData); err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Failed to save user",
+		})
+		return
+	}
+
+	// Also add email to allowed-users.json
+	allowedUsers, err := h.config.LoadAllowedUsers()
+	if err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Failed to update allowed users",
+		})
+		return
+	}
+
+	// Check if email already in allowed list
+	emailExists := false
+	for _, email := range allowedUsers {
+		if email == req.Email {
+			emailExists = true
+			break
+		}
+	}
+	if !emailExists {
+		allowedUsers = append(allowedUsers, req.Email)
+		if err := h.config.SaveAllowedUsers(allowedUsers); err != nil {
+			respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+				"success": false,
+				"message": "Failed to update allowed users",
+			})
+			return
+		}
+	}
+
+	respondJSON(w, http.StatusCreated, map[string]interface{}{
+		"success": true,
+		"message": "User created successfully",
+		"user":    newUser,
+	})
+}
+
 // UpdatePermissionsRequest represents permission update request
 type UpdatePermissionsRequest struct {
 	Email       string   `json:"email"`
@@ -256,6 +433,96 @@ func (h *AuthHandler) UpdateUserPermissions(w http.ResponseWriter, r *http.Reque
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"message": "Permissions updated",
+	})
+}
+
+// UserStatusRequest represents user status change request
+type UserStatusRequest struct {
+	Email  string `json:"email"`
+	Active bool   `json:"active"`
+}
+
+// UpdateUserStatus updates user active/inactive status (super admin only)
+func (h *AuthHandler) UpdateUserStatus(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.GetUserFromContext(r.Context())
+	if !ok || user.Role != "super_admin" {
+		respondJSON(w, http.StatusForbidden, map[string]interface{}{
+			"success": false,
+			"message": "Forbidden",
+		})
+		return
+	}
+
+	var req UserStatusRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	if req.Email == "" {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "Email is required",
+		})
+		return
+	}
+
+	// Prevent deactivating yourself
+	if req.Email == user.Email && !req.Active {
+		respondJSON(w, http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"message": "You cannot deactivate your own account",
+		})
+		return
+	}
+
+	usersData, err := h.config.LoadUsers()
+	if err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Server error",
+		})
+		return
+	}
+
+	// Find and update user status
+	found := false
+	for i, u := range usersData.Users {
+		if u.Email == req.Email {
+			usersData.Users[i].Active = req.Active
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		respondJSON(w, http.StatusNotFound, map[string]interface{}{
+			"success": false,
+			"message": "User not found",
+		})
+		return
+	}
+
+	// Save updated users
+	if err := h.config.SaveUsers(usersData); err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Failed to save user status",
+		})
+		return
+	}
+
+	statusText := "activated"
+	if !req.Active {
+		statusText = "deactivated"
+	}
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"success": true,
+		"message": "User " + statusText + " successfully",
 	})
 }
 

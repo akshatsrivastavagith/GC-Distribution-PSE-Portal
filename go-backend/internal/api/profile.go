@@ -21,7 +21,7 @@ func NewProfileHandler(cfg *config.Config) *ProfileHandler {
 // GetProfile returns user profile with upload history (with filters)
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	// Get user from context (set by auth middleware)
-	userClaims, ok := r.Context().Value("user").(*middleware.UserClaims)
+	userClaims, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
 		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
@@ -60,7 +60,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 // GetActivityLog returns activity logs (Super Admin only, with filters)
 func (h *ProfileHandler) GetActivityLog(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
-	userClaims, ok := r.Context().Value("user").(*middleware.UserClaims)
+	userClaims, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
 		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
@@ -70,7 +70,7 @@ func (h *ProfileHandler) GetActivityLog(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Only Super Admin can view all activity logs
-	if userClaims.Role != "Super Admin" {
+	if userClaims.Role != "super_admin" {
 		respondJSON(w, http.StatusForbidden, map[string]interface{}{
 			"success": false,
 			"message": "Only Super Admin can view activity logs",
@@ -99,10 +99,42 @@ func (h *ProfileHandler) GetActivityLog(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
+// GetMyActivityLog returns current user's activity logs (for all users)
+func (h *ProfileHandler) GetMyActivityLog(w http.ResponseWriter, r *http.Request) {
+	// Get user from context
+	userClaims, ok := middleware.GetUserFromContext(r.Context())
+	if !ok {
+		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
+			"success": false,
+			"message": "User not authenticated",
+		})
+		return
+	}
+
+	// Get filter parameters from query string
+	operation := r.URL.Query().Get("operation")
+	environment := r.URL.Query().Get("environment")
+
+	// Get activity logs for current user only
+	activities, err := utils.GetAllActivityLog(h.config.ConfigDir, userClaims.Username, operation, environment)
+	if err != nil {
+		respondJSON(w, http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"message": "Failed to retrieve activity logs",
+		})
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"success":    true,
+		"activities": activities,
+	})
+}
+
 // GetAllUploadHistory returns all users' upload history (Super Admin only, with filters)
 func (h *ProfileHandler) GetAllUploadHistory(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
-	userClaims, ok := r.Context().Value("user").(*middleware.UserClaims)
+	userClaims, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
 		respondJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"success": false,
@@ -112,7 +144,7 @@ func (h *ProfileHandler) GetAllUploadHistory(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Only Super Admin can view all upload history
-	if userClaims.Role != "Super Admin" {
+	if userClaims.Role != "super_admin" {
 		respondJSON(w, http.StatusForbidden, map[string]interface{}{
 			"success": false,
 			"message": "Only Super Admin can view all upload history",

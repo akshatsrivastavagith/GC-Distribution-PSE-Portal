@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -86,5 +88,11 @@ func GenerateRzpID() string {
 func GenerateRunID(filename string) string {
 	timestamp := time.Now().Format("2006-01-02T15-04-05")
 	return fmt.Sprintf("%s_%s", filename, timestamp)
+}
+
+// HashPassword hashes a password using bcrypt
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
 }
 

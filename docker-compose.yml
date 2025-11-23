@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./go-backend
+      dockerfile: Dockerfile
+    container_name: pse-portal-backend
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+    volumes:
+      - ./go-backend/config:/app/config
+      - ./go-backend/storage:/app/storage
+      - ./backend/scripts:/app/scripts
+    restart: unless-stopped
+    networks:
+      - pse-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pse-portal-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - pse-network
+
+networks:
+  pse-network:
+    driver: bridge
+
+volumes:
+  storage_data:
+  config_data:
+

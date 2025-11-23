@@ -1,0 +1,24 @@
+[
+  {
+    "username": "admin_username",
+    "email": "admin@example.com",
+    "password": "admin_password",
+    "role": "Admin",
+    "permissions": ["dashboard", "stock_upload", "user_management"]
+  },
+  {
+    "username": "superadmin_username",
+    "email": "superadmin@example.com",
+    "password": "superadmin_password",
+    "role": "Super Admin",
+    "permissions": ["dashboard", "stock_upload", "data_change_operation", "user_management"]
+  },
+  {
+    "username": "user_username",
+    "email": "user@example.com",
+    "password": "user_password",
+    "role": "User",
+    "permissions": ["dashboard", "stock_upload"]
+  }
+]
+

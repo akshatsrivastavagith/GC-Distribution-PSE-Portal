@@ -7,6 +7,9 @@ import Dashboard from './pages/Dashboard'
 import StockUpload from './pages/StockUpload'
 import DataChangeOperation from './pages/DataChangeOperation'
 import UserManagement from './pages/UserManagement'
+import Profile from './pages/Profile'
+import ActivityLog from './pages/ActivityLog'
+import PasswordRequests from './pages/PasswordRequests'
 
 export default function App() {
   return (
@@ -44,6 +47,30 @@ export default function App() {
               element={
                 <ProtectedRoute requiredPermission="user_management">
                   <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/profile' 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/activity-log' 
+              element={
+                <ProtectedRoute>
+                  <ActivityLog />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/password-requests' 
+              element={
+                <ProtectedRoute>
+                  <PasswordRequests />
                 </ProtectedRoute>
               } 
             />

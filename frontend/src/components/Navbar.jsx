@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useEnvironment } from '../contexts/EnvironmentContext'
 
@@ -6,6 +7,34 @@ export default function Navbar() {
   const { user, logout, hasPermission } = useAuth()
   const { environment, setEnvironment, ENV_CONFIG } = useEnvironment()
   const navigate = useNavigate()
+  const [pendingCount, setPendingCount] = useState(0)
+
+  useEffect(() => {
+    // Fetch pending count for Super Admin
+    if (user?.role === 'Super Admin') {
+      fetchPendingCount()
+      // Poll every 30 seconds
+      const interval = setInterval(fetchPendingCount, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
+
+  const fetchPendingCount = async () => {
+    try {
+      const token = localStorage.getItem('authToken')
+      const response = await fetch('http://localhost:5001/password-request/pending-count', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setPendingCount(data.count || 0)
+      }
+    } catch (err) {
+      console.error('Failed to fetch pending count:', err)
+    }
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -54,6 +83,32 @@ export default function Navbar() {
       )}
 
       <div className="ml-auto flex items-center gap-4">
+        {/* Profile Link */}
+        <Link to="/profile" className="hover:text-blue-600 transition font-medium">
+          Profile
+        </Link>
+
+        {/* Activity Log - Super Admin only */}
+        {user?.role === 'Super Admin' && (
+          <Link to="/activity-log" className="hover:text-blue-600 transition font-medium">
+            Activity Log
+          </Link>
+        )}
+
+        {/* Notification Bell - Super Admin only */}
+        {user?.role === 'Super Admin' && (
+          <Link to="/password-requests" className="relative hover:text-blue-600 transition">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {pendingCount}
+              </span>
+            )}
+          </Link>
+        )}
+
         {/* Environment Selector */}
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium">Environment:</label>

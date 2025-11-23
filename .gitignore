@@ -1,0 +1,193 @@
+# ========================================
+# SENSITIVE CONFIGURATION FILES
+# ========================================
+# These files contain credentials and should NEVER be pushed to GitHub
+
+# Environment configuration (contains API credentials)
+go-backend/config/environments.json
+
+# User credentials (contains passwords)
+go-backend/config/users.json
+
+# Activity logs (may contain sensitive user data)
+go-backend/config/activity_log.json
+
+# Upload history (may contain sensitive data)
+go-backend/config/upload_history.json
+
+# Password change requests (contains user data)
+go-backend/config/password_change_requests.json
+
+# Procurement batch IDs
+go-backend/config/procurement_batch_id.txt
+procurement_batch_id.txt
+
+# ========================================
+# UPLOADED FILES & STORAGE
+# ========================================
+# CSV uploads and results
+go-backend/storage/
+storage/
+uploads/
+*.csv
+*.xlsx
+*.xls
+
+# Logs
+*.log
+go-backend/*.log
+frontend/*.log
+/tmp/*.log
+
+# ========================================
+# GO BACKEND
+# ========================================
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+go-backend/main
+go-backend/gc-distribution-portal
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# ========================================
+# NODE / FRONTEND
+# ========================================
+# Dependencies
+node_modules/
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Testing
+frontend/coverage
+
+# Production build
+frontend/build
+frontend/dist
+frontend/.next
+frontend/out
+
+# Misc
+.DS_Store
+frontend/.DS_Store
+*.pem
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite
+frontend/.vite
+.vite
+
+# ========================================
+# IDE / EDITOR FILES
+# ========================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Cursor AI
+.cursor/
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ========================================
+# DOCKER
+# ========================================
+# Docker volumes
+docker-compose.override.yml
+
+# ========================================
+# OS FILES
+# ========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ========================================
+# TEMPORARY FILES
+# ========================================
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# Python (if any scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ========================================
+# BACKUPS & ARCHIVES
+# ========================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ========================================
+# DOCUMENTATION BUILD FILES
+# ========================================
+# If using any doc generators
+docs/_build/
+site/
+

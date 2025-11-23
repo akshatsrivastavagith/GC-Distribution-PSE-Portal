@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -20,18 +21,18 @@ export default function Login() {
     setErr('')
     setLoading(true)
     
-    if (!email) {
-      setErr('Email required')
+    if (!username || !password) {
+      setErr('Username and password required')
       setLoading(false)
       return
     }
 
-    const result = await login(email)
+    const result = await login(username, password)
     
     if (result.success) {
       navigate('/dashboard')
     } else {
-      setErr(result.message || 'Unauthorized')
+      setErr(result.message || 'Invalid username or password')
     }
     
     setLoading(false)
@@ -50,18 +51,30 @@ export default function Login() {
           <div className="flex justify-center mb-6">
             <img src="/razorpay-logo.svg" alt="Razorpay" className="h-14" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">PSE Portal</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">GC Distribution Portal</h1>
           <h2 className="text-lg font-semibold text-gray-600">Login</h2>
         </div>
         
         <input 
           className="w-full p-3 border-2 rounded-lg mb-3 focus:border-blue-500 focus:outline-none transition" 
-          placeholder="Enter your email" 
-          value={email} 
-          onChange={e => setEmail(e.target.value)}
+          placeholder="Username" 
+          value={username} 
+          onChange={e => setUsername(e.target.value)}
           onKeyPress={handleKeyPress}
           disabled={loading}
-          type="email"
+          type="text"
+          autoComplete="username"
+        />
+        
+        <input 
+          className="w-full p-3 border-2 rounded-lg mb-3 focus:border-blue-500 focus:outline-none transition" 
+          placeholder="Password" 
+          value={password} 
+          onChange={e => setPassword(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={loading}
+          type="password"
+          autoComplete="current-password"
         />
         
         {err && (
@@ -79,7 +92,7 @@ export default function Login() {
         </button>
         
         <div className="mt-6 text-xs text-gray-500 text-center">
-          <p>Use your Razorpay email to login</p>
+          <p>Enter your username and password</p>
         </div>
       </div>
     </div>

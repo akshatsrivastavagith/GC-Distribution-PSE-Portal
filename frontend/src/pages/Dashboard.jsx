@@ -15,8 +15,8 @@ export default function Dashboard(){
           <div className="flex items-center gap-4 mb-4">
             <img src="/razorpay-logo.svg" alt="Razorpay" className="h-12" />
             <div>
-              <h1 className="text-3xl font-bold">PSE Portal</h1>
-              <p className="text-sm text-gray-500">Payment Services Excellence</p>
+              <h1 className="text-3xl font-bold">GC Distribution Portal</h1>
+              <p className="text-sm text-gray-500">Gift Card Distribution Management</p>
             </div>
           </div>
           <p className="text-gray-600">Logged in as: <span className="font-semibold">{user?.email}</span></p>

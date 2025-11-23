@@ -1,0 +1,13 @@
+{
+  "TEST": {
+    "base_url": "https://your-test-api-url.com/v1",
+    "username": "your_test_username",
+    "password": "your_test_password"
+  },
+  "PROD": {
+    "base_url": "https://your-prod-api-url.com/v1",
+    "username": "your_prod_username",
+    "password": "your_prod_password"
+  }
+}
+
